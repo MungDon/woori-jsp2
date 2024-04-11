@@ -8,6 +8,14 @@
 <h1>/board02/writeForm</h1>
 
 <% 
+	String sid = (String)session.getAttribute("sid");
+	if(sid ==null){%>
+		<script>
+			alert("로그인 후 작성해주세요");
+			window.location="/web002/views/member/main.jsp";
+		</script>
+		
+<%	}
 	int num=0,ref=1,re_step=0,re_level=0;
 	try{  
 		if(request.getParameter("num")!= null){ // 글번호가있으니까 새글이아닌 답글
@@ -20,7 +28,7 @@
 
 <center><b>글쓰기</b></center>
 <br />
-<form method="post" name="writeform" action="writePro.jsp">
+<form method="post" name="writeform" onsubmit="return writeChk()" action="writePro.jsp">
 	<input type="hidden" name="num" value="<%=num%>">
 	<input type="hidden" name="ref" value="<%=ref%>">
 	<input type="hidden" name="re_step" value="<%=re_step%>">
@@ -35,7 +43,8 @@
 	<tr>
 	    <td  width="70" align="center">작성자</td>
 	    <td  width="330">
-	       <input type="text" size="10" maxlength="10" name="writer">
+	    	<%=sid%>
+	       <input type="hidden" name="writer" value="<%=sid%>"/>
 	    </td>
 	</tr>
 	<tr>

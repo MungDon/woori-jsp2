@@ -3,8 +3,10 @@
 <%@ page import = "web.bean.board02.Board02DAO" %>
 <%@ page import = "web.bean.board02.Board02DTO" %>
 <%@ page import = "java.util.ArrayList" %>
-<h1>/board02/list.jsp</h1>
+<h1>myList.jsp</h1>
+
 <%
+	String sid = (String)session.getAttribute("sid");
 	int pageSize = 10;	// 한페이지에 보여줄 게시글 수
     String pageNum = request.getParameter("pageNum");
     if (pageNum == null) {// 받아오는 페이지번호가 없다면 해당페이지가 1번이다
@@ -18,26 +20,26 @@
 
     ArrayList<Board02DTO> list = null; // 리스트객체 초기화
     Board02DAO dao = Board02DAO.getInstance();// dao 객체 호출
-    count = dao.boardCount();// count 변수에 db 에서 가져온 모든 게시글 수 저장 
+    count = dao.MyBoardCount(sid);// count 변수에 db 에서 가져온 모든 게시글 수 저장 
     if (count > 0) {// 게시글이있다면
-    	list = dao.boardList(startRow, endRow);//리스트 db에서 뽑아온걸 list에 저장
+    	list = dao.MyBoardList(startRow, endRow, sid);//리스트 db에서 뽑아온걸 list에 저장
     }
 %>
-
 <center><b>글목록(전체 글:<%=count%>)</b>
 <table style="width : 700">
 
-<% if(session.getAttribute("sid")==null){ //세션없음 = 로그인상태가아님 %>
+<% if(sid==null){ //세션없음 = 로그인상태가아님 %>
 	<tr>
 		<td>
 			<a href="../member/main.jsp">로그인</a>
+			
 		<td>
 	</tr>
 <% }else{ %>
 <tr>
     <td align="right" >
     	<a href="writeForm.jsp">글쓰기</a>
-    	<a href="myList.jsp">내 글목록</a>
+    	<a href="list.jsp">전체 글목록</a>
     </td>
 </tr>
  <%} %>
@@ -115,14 +117,14 @@
         if (endPage > pageCount) endPage = pageCount;
         
         if (startPage > 10) {    %>
-        <a href="list.jsp?pageNum=<%= startPage - 10 %>">[이전]</a>
+        <a href="myList.jsp?pageNum=<%= startPage - 10 %>">[이전]</a>
 <%      }
         for (int i = startPage ; i <= endPage ; i++) {  %>
-        <a href="list.jsp?pageNum=<%= i %>">[<%= i %>]</a>
+        <a href="myList.jsp?pageNum=<%= i %>">[<%= i %>]</a>
 <%
         }
         if (endPage < pageCount) {  %>
-        <a href="list.jsp?pageNum=<%= startPage + 10 %>">[다음]</a>
+        <a href="myList.jsp?pageNum=<%= startPage + 10 %>">[다음]</a>
 <%
         }
     }

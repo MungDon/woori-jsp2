@@ -1,9 +1,23 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
-<%@ page import = "web.bean.board02.Board02DAO" %>
-<%@ page import = "web.bean.board02.Board02DTO" %>
+<%@ page import = "web.bean.board03.Board03DAO" %>
+<%@ page import = "web.bean.board03.Board03DTO" %>
 <%@ page import = "java.util.ArrayList" %>
-<h1>/board02/list.jsp</h1>
+<style>
+	table{
+		border-collapse: collapse;
+		text-align: center;
+	}
+	tr,td,th{
+		border : 1px solid darkgray;
+	}
+	.img{
+		width : 25px;
+		height : 25px;
+		margin-bottom : -4px;
+	}
+</style>
+<h1>/board03/list.jsp</h1>
 <%
 	int pageSize = 10;	// 한페이지에 보여줄 게시글 수
     String pageNum = request.getParameter("pageNum");
@@ -12,35 +26,26 @@
     }
 
     int currentPage = Integer.parseInt(pageNum);// 현재페이지
-    int startRow	= (currentPage - 1) * pageSize + 1; // 해당페이지의 게시글 시작번호
+    int startRow	= (currentPage - 1) * pageSize + 1; // 해당페이지의 게시글 시작번호 ) (1-1)*10+1 = 1
     int endRow	= currentPage * pageSize;// 해당페이지의 게시글 끝번호
     int count	= 0;// 총 게시글 수
 
-    ArrayList<Board02DTO> list = null; // 리스트객체 초기화
-    Board02DAO dao = Board02DAO.getInstance();// dao 객체 호출
-    count = dao.boardCount();// count 변수에 db 에서 가져온 모든 게시글 수 저장 
+    ArrayList<Board03DTO> list = null; // 리스트객체 초기화
+    Board03DAO dao = Board03DAO.getInstance();// dao 객체 호출
+    count = dao.imgCount();// count 변수에 db 에서 가져온 모든 게시글 수 저장 
     if (count > 0) {// 게시글이있다면
-    	list = dao.boardList(startRow, endRow);//리스트 db에서 뽑아온걸 list에 저장
+    	list = dao.imgList(startRow, endRow);//리스트 db에서 뽑아온걸 list에 저장
     }
 %>
 
 <center><b>글목록(전체 글:<%=count%>)</b>
 <table style="width : 700">
-
-<% if(session.getAttribute("sid")==null){ //세션없음 = 로그인상태가아님 %>
 	<tr>
-		<td>
-			<a href="../member/main.jsp">로그인</a>
-		<td>
+    	<td align="right" >
+    		<a href="writeForm.jsp">글쓰기</a>
+    		<a href="myList.jsp">내 글목록</a>
+    	</td>
 	</tr>
-<% }else{ %>
-<tr>
-    <td align="right" >
-    	<a href="writeForm.jsp">글쓰기</a>
-    	<a href="myList.jsp">내 글목록</a>
-    </td>
-</tr>
- <%} %>
 </table>
 
 <%
@@ -58,14 +63,12 @@
 	<tr height="30" > 
 		<td align="center"  width="50"  >글번호</td> 
 		<td align="center"  width="250" >글제목</td> 
-		<td align="center"  width="100" >작성자</td>
 		<td align="center"  width="150" >작성일</td> 
-		<td align="center"  width="50" >조회수</td>  
 	</tr>
 <%  
 //	 	for (int i = 0 ; i < list.size() ; i++) {
 //			Board02DTO dto = (Board02DTO)list.get(i);
-		for(Board02DTO dto : list){ // 가독성 향상을위해 향상된 for문으로 변경
+		for(Board03DTO dto : list){ // 가독성 향상을위해 향상된 for문으로 변경
 %>
 	<tr height="30">
 		<td align="center"  width="50" >
@@ -73,46 +76,34 @@
 		</td>
 		
 		<td width="250" >
-<%
-			int wid = 0; // 너비
-			if( dto.getRe_level() > 0){
-				wid = 15*( dto.getRe_level() );//레벨이올라갈때마다 즉 답글의답글일때마다 사진의 너비 증가 ㅋㅋ
-%>
-		<img src="../images/level.gif" width="<%=wid%>" height="16">
-		<img src="../images/re.gif">
-<%			}else{%>
-		<img src="../images/level.gif" width="<%=wid%>" height="16">
-<% 			}%>
-	    <a href="content.jsp?num=<%=dto.getNum()%>&pageNum=<%=currentPage%>">
-		           <%=dto.getTitle()%>
-		</a> 
-<% 			if(dto.getReadCount()>= 20){%>
-		<img src="../images/hot.gif" border="0"  height="16">
-<%			}%> 
+	   		<a href="content.jsp?num=<%=dto.getNum()%>&pageNum=<%=currentPage%>">
+		    	<%=dto.getTitle()%>
+			</a> 
+			<%if(dto.getImg()!= null){%>
+				&nbsp;
+				<img src="../images/imgicon.png" class="img" />
+			<%} %>
+			
 		</td>
 		
-		<td align="center"  width="100"> 
-	       	<%=dto.getWriter()%>
-		</td>
 		<td align="center"  width="150">
 			<%= dto.getReg()%>
-		</td>
-		<td align="center"  width="50">
-			<%= dto.getReadCount()%>
 		</td>
 	</tr>
 	<%	}%>
 </table>
-<%}%>
+<%	}%>
 
 <%
     if (count > 0) {
         int pageCount = count / pageSize + ( count % pageSize == 0 ? 0 : 1);
 		 
-        int startPage = (int)(currentPage/10)*10+1;
+        int startPage = (int)((currentPage-1)/10)*10+1;
 		int pageBlock=10;
         int endPage = startPage + pageBlock-1;
-        if (endPage > pageCount) endPage = pageCount;
+        if (endPage > pageCount) {
+        	endPage = pageCount;
+        }
         
         if (startPage > 10) {    %>
         <a href="list.jsp?pageNum=<%= startPage - 10 %>">[이전]</a>
